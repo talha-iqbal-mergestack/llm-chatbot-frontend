@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Box, VStack, Input, Button } from "@chakra-ui/react";
+import { Box, VStack, Input, Button, HStack } from "@chakra-ui/react";
 
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { Message } from "@/types/chat";
@@ -60,7 +60,7 @@ export function ChatContainer() {
             ))}
           </VStack>
         </Box>
-        <Box w="full" position="relative">
+        <HStack w="full">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -69,18 +69,13 @@ export function ChatContainer() {
             pr="4.5rem"
           />
           <Button
-            position="absolute"
-            right={2}
-            top="50%"
-            transform="translateY(-50%)"
-            colorScheme="blue"
             size="sm"
             onClick={handleSendMessage}
             loading={mutation.isPending}
           >
             Send
           </Button>
-        </Box>
+        </HStack>
       </VStack>
     </Box>
   );
