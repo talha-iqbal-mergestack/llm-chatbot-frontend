@@ -2,50 +2,23 @@
 
 import { useState } from "react";
 import { Box, VStack, Input, Button } from "@chakra-ui/react";
-import { useMutation } from "@tanstack/react-query";
 
 import { ChatMessage } from "@/components/chat/ChatMessage";
-import { toaster } from "@/components/ui/toaster";
-
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
-
-const sendMessage = async (messages: Message[]) => {
-  const response = await fetch("http://localhost:8000/api/v1/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ messages, model: "deepseek/deepseek-r1:free" }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to send message");
-  }
-
-  return response.json();
-};
+import { Message } from "@/types/chat";
+import { useChat } from "@/hooks/useChat";
 
 export function ChatContainer() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
 
-  const mutation = useMutation({
-    mutationFn: (newMessages: Message[]) => sendMessage(newMessages),
-    onSuccess: (data) => {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.response },
-      ]);
-    },
-    onError: () => {
-      toaster.error({
-        description: "Failed to send message",
-      });
-    },
-  });
+  const mutation = useChat();
+
+  const handleSuccess = (data: { response: string }) => {
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: data.response },
+    ]);
+  };
 
   const handleSendMessage = () => {
     if (!input.trim()) return;
@@ -54,7 +27,9 @@ export function ChatContainer() {
     setMessages((prev) => [...prev, newMessage]);
     setInput("");
 
-    mutation.mutate([...messages, newMessage]);
+    mutation.mutate([...messages, newMessage], {
+      onSuccess: handleSuccess,
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

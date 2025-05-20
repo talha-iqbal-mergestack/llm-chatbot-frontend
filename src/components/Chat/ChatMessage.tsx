@@ -2,10 +2,7 @@
 
 import { Box, Text, VStack } from '@chakra-ui/react';
 
-interface ChatMessageProps {
-  role: 'user' | 'assistant';
-  content: string;
-}
+import { ChatMessageProps } from "@/types/chat";
 
 export function ChatMessage({ role, content }: ChatMessageProps) {
   const isUser = role === 'user';
