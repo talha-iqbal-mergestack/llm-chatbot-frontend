@@ -1,11 +1,12 @@
 "use client";
 
-import { Box, Text, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack, Link, HStack, Icon } from "@chakra-ui/react";
+import { FiFileText } from "react-icons/fi";
 
 import { ChatMessageProps } from "@/types/chat";
 import ReactMarkdown from "react-markdown";
 
-export function ChatMessage({ role, content }: ChatMessageProps) {
+export function ChatMessage({ role, content, attachment }: ChatMessageProps) {
   const isUser = role === "user";
 
   return (
@@ -15,6 +16,23 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
           {isUser ? "You" : "Assistant"}
         </Text>
         <ReactMarkdown>{content}</ReactMarkdown>
+        {attachment && (
+          <Link
+            href={attachment.url}
+            // isExternal
+          >
+            <HStack
+              gap={2}
+              p={2}
+              borderWidth={1}
+              borderRadius="md"
+              _hover={{ bg: "gray.50" }}
+            >
+              <Icon as={FiFileText} />
+              <Text fontSize="sm">{attachment.name}</Text>
+            </HStack>
+          </Link>
+        )}
       </VStack>
     </Box>
   );
