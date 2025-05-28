@@ -8,6 +8,7 @@ import {
   Button,
   HStack,
   IconButton,
+  Text,
 } from "@chakra-ui/react";
 import { FiPaperclip } from "react-icons/fi";
 import { documentApi } from "@/lib/api/document";
@@ -25,7 +26,7 @@ export function ChatContainer() {
 
   const mutation = useChat();
 
-  const handleSuccess = (data: { response: string }) => {
+  const handleResponse = (data: { response: string }) => {
     setMessages((prev) => [
       ...prev,
       { role: "assistant", content: data.response },
@@ -43,11 +44,11 @@ export function ChatContainer() {
     let attachment: FileAttachment | undefined;
     if (selectedFile) {
       try {
-        const { url } = await documentApi.upload(selectedFile);
+        await documentApi.upload(selectedFile);
         attachment = {
           type: "pdf",
           name: selectedFile.name,
-          url: url,
+          // url: url,
         };
       } catch (error) {
         console.error("Error uploading file:", error);
@@ -67,19 +68,21 @@ export function ChatContainer() {
 
     if (attachment) {
       try {
-        const { results } = await documentApi.query(
-          input.trim() || "Please summarize this document"
+        const { answer } = await documentApi.query(
+          input.trim() || "Summarize this document"
         );
-        handleSuccess({ response: results.join("\n") });
+        if (answer) {
+          handleResponse({ response: answer });
+        }
       } catch (error) {
         console.error("Error querying document:", error);
-        handleSuccess({
+        handleResponse({
           response: "Sorry, I couldn't process the document. Please try again.",
         });
       }
     } else {
       mutation.mutate([...messages, newMessage], {
-        onSuccess: handleSuccess,
+        onSuccess: handleResponse,
       });
     }
   };
@@ -118,31 +121,39 @@ export function ChatContainer() {
               <FileUpload onFileSelect={handleFileSelect} />
             </Box>
           )}
-          <HStack w="full">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder={
-                selectedFile ? selectedFile.name : "Type your message..."
-              }
-              pr="4.5rem"
-            />
-            <IconButton
-              aria-label="Attach file"
-              size="sm"
-              onClick={() => setShowFileUpload(!showFileUpload)}
-            >
-              <FiPaperclip />
-            </IconButton>
-            <Button
-              size="sm"
-              onClick={handleSendMessage}
-              loading={mutation.isPending}
-            >
-              Send
-            </Button>
-          </HStack>
+          <VStack w="full" gap={2}>
+            {selectedFile && (
+              <HStack w="full" p={2} bg="gray.50" borderRadius="md" gap={2}>
+                <FiPaperclip />
+                <Text fontSize="sm" color="gray.600">
+                  {selectedFile.name}
+                </Text>
+              </HStack>
+            )}
+            <HStack w="full">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder="Type your message..."
+                pr="4.5rem"
+              />
+              <IconButton
+                aria-label="Attach file"
+                size="sm"
+                onClick={() => setShowFileUpload(!showFileUpload)}
+              >
+                <FiPaperclip />
+              </IconButton>
+              <Button
+                size="sm"
+                onClick={handleSendMessage}
+                loading={mutation.isPending}
+              >
+                Send
+              </Button>
+            </HStack>
+          </VStack>
         </VStack>
       </VStack>
     </Box>

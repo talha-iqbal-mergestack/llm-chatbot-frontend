@@ -1,7 +1,7 @@
 export interface FileAttachment {
   type: "pdf";
   name: string;
-  url: string;
+  // url: string;
 }
 
 export interface Message {

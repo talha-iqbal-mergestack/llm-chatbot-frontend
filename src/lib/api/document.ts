@@ -12,7 +12,7 @@ export const documentApi = {
     });
   },
 
-  query: async (query: string): Promise<{ results: any[] }> => {
+  query: async (query: string): Promise<{ answer: string }> => {
     return apiClient.post("/documents/query", { query });
   },
 };
